@@ -1,0 +1,6 @@
+google-cloud-aiplatform
+functions-framework==3.*
+Flask
+Flask-Cors
+numpy
+gunicorn
