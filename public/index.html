@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Plant Optimizer</title>
+    <title>AI Cement Plant Optimizer</title>
     <!-- Tailwind CSS via CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- We'll use a specific font for consistency -->
@@ -41,7 +41,7 @@
 
     <div class="w-full max-w-7xl bg-gray-900 rounded-2xl shadow-xl overflow-hidden p-6 md:p-10">
         
-        <h1 class="text-3xl font-bold text-gray-200">AI Plant Optimizer</h1>
+        <h1 class="text-3xl font-bold text-gray-200">AI Cement Plant Optimizer</h1>
         <p class="mt-2 text-gray-400">Adjust the key input variables and get real-time prescriptive recommendations.</p>
 
         <!-- Main Input and Output Grid -->
@@ -119,7 +119,7 @@
                 <!-- Recommendation Output -->
                 <div id="recommendation-output" class="bg-gray-800 rounded-xl p-6 shadow-lg hidden">
                     <h2 class="text-xl font-semibold text-gray-300">Recommendations</h2>
-                    <!-- Recommendations will be displayed here -->
+                    <p class="text-md text-gray-200">Recommendations will appear here.</p>
                 </div>
             </div>
         </div>
@@ -133,31 +133,34 @@
             <div id="loading-indicator" class="mt-4 text-gray-400 hidden">
                 <p>Analyzing inputs and generating recommendations...</p>
             </div>
+            <div id="error-message" class="mt-4 text-red-400 hidden"></div>
         </div>
 
     </div>
 
     <script>
         // Define the backend endpoint URL
-        const BACKEND_ENDPOINT_URL = 'https://backend-logic-for-prediction-640093347159.us-central1.run.app';
+        const BACKEND_ENDPOINT_URL = 'https://backend-logic-for-prediction-640093347159.us-central1.run.app/';
 
         // Updated input features with process stage groupings
+        // Variable names EXACTLY match the backend requirements
         const inputFeatures = [
-            { id: 'limestone_feed_rate_pct', label: 'Limestone Feed Rate (%)', min: 70, max: 95, default: 85, process: 'blending' },
-            { id: 'clay_feed_rate_pct', label: 'Clay Feed Rate (%)', min: 2, max: 10, default: 5, process: 'blending' },
-            { id: 'iron_ore_feed_rate_pct', label: 'Iron Ore Feed Rate (%)', min: 1, max: 5, default: 2, process: 'blending' },
-            { id: 'bauxite_feed_rate_pct', label: 'Bauxite Feed Rate (%)', min: 0.5, max: 3, default: 1.5, process: 'blending' },
+            { id: 'limestone_feed_rate_pct', label: 'Limestone Feed Rate (%)', min: 70, max: 95, default: 78.1, process: 'blending' },
+            { id: 'clay_feed_rate_pct', label: 'Clay Feed Rate (%)', min: 2, max: 25, default: 16, process: 'blending' },
+            { id: 'iron_ore_feed_rate_pct', label: 'Iron Ore Feed Rate (%)', min: 1, max: 8, default: 3.5, process: 'blending' },
+            { id: 'bauxite_feed_rate_pct', label: 'Bauxite Feed Rate (%)', min: 0.5, max: 5, default: 2.5, process: 'blending' },
+            { id: 'raw_meal_lsf_ratio', label: 'Raw Meal LSF Ratio', min: 90, max: 100, default: 95.28, process: 'blending' },
             
-            { id: 'raw_meal_feed_rate_tph', label: 'Raw Meal Feed Rate (TPH)', min: 150, max: 250, default: 200, process: 'pyroprocessing' },
-            { id: 'fuel_feed_rate_tph', label: 'Fuel Feed Rate (TPH)', min: 5, max: 15, default: 10, process: 'pyroprocessing' },
-            { id: 'fuel_alt_substitution_rate_pct', label: 'Fuel Alt. Substitution Rate (%)', min: 0, max: 30, default: 15, process: 'pyroprocessing' },
-            { id: 'kiln_hood_pressure_mmH2O', label: 'Kiln Hood Pressure (mmH₂O)', min: -10, max: 10, default: 0, process: 'pyroprocessing' },
-            { id: 'kiln_burner_air_flow_m3_hr', label: 'Kiln Burner Air Flow (m³/hr)', min: 10000, max: 30000, default: 20000, process: 'pyroprocessing' },
-            { id: 'kiln_main_drive_current_amp', label: 'Kiln Main Drive Current (Amp)', min: 150, max: 250, default: 200, process: 'pyroprocessing' },
+            { id: 'raw_meal_feed_rate_tph', label: 'Raw Meal Feed Rate (TPH)', min: 150, max: 250, default: 175, process: 'pyroprocessing' },
+            { id: 'fuel_feed_rate_tph', label: 'Fuel Feed Rate (TPH)', min: 5, max: 15, default: 9.5, process: 'pyroprocessing' },
+            { id: 'fuel_alt_substitution_rate_pct', label: 'Fuel Alt. Substitution Rate (%)', min: 0, max: 30, default: 14.99, process: 'pyroprocessing' },
+            { id: 'kiln_hood_pressure_mmH2O', label: 'Kiln Hood Pressure (mmH₂O)', min: -10, max: 10, default: -6, process: 'pyroprocessing' },
+            { id: 'kiln_burner_air_flow_m3_hr', label: 'Kiln Burner Air Flow (m³/hr)', min: 10000, max: 40000, default: 25006.37, process: 'pyroprocessing' },
+            { id: 'kiln_main_drive_current_amp', label: 'Kiln Main Drive Current (Amp)', min: 150, max: 250, default: 200.34, process: 'pyroprocessing' },
             
             { id: 'clinker_feed_rate_tph', label: 'Clinker Feed Rate (TPH)', min: 100, max: 200, default: 150, process: 'grinding' },
             { id: 'gypsum_feed_rate_tph', label: 'Gypsum Feed Rate (TPH)', min: 2, max: 8, default: 5, process: 'grinding' },
-            { id: 'mill_recirculation_ratio_pct', label: 'Mill Recirculation Ratio (%)', min: 50, max: 150, default: 100, process: 'grinding' }
+            { id: 'mill_recirculation_ratio_%', label: 'Mill Recirculation Ratio (%)', min: 50, max: 150, default: 100, process: 'grinding' }
         ];
 
         // This function dynamically creates the input sliders
@@ -170,38 +173,44 @@
 
             for (const process in groupedInputs) {
                 const container = document.getElementById(`${process}-inputs`);
-                groupedInputs[process].forEach(feature => {
-                    const controlHtml = `
-                        <div class="space-y-2">
-                            <label for="${feature.id}" class="block text-sm font-medium text-gray-300">
-                                ${feature.label}
-                                <span id="${feature.id}-value" class="text-purple-400 font-semibold ml-2">${feature.default}</span>
-                            </label>
-                            <input type="range" id="${feature.id}" min="${feature.min}" max="${feature.max}" value="${feature.default}" step="any"
-                                   class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer">
-                        </div>
-                    `;
-                    container.innerHTML += controlHtml;
-                });
+                if (container) {
+                    container.innerHTML = ''; // Clear existing content
+                    groupedInputs[process].forEach(feature => {
+                        const controlHtml = `
+                            <div class="space-y-2">
+                                <label for="${feature.id}" class="block text-sm font-medium text-gray-300">
+                                    ${feature.label}
+                                    <span id="${feature.id}-value" class="text-purple-400 font-semibold ml-2">${feature.default}</span>
+                                </label>
+                                <input type="range" id="${feature.id}" min="${feature.min}" max="${feature.max}" value="${feature.default}" step="0.01"
+                                       class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer">
+                            </div>
+                        `;
+                        container.innerHTML += controlHtml;
+                    });
+                }
             }
 
             // Add event listeners after rendering
             inputFeatures.forEach(feature => {
                 const input = document.getElementById(feature.id);
                 const valueSpan = document.getElementById(`${feature.id}-value`);
-                input.addEventListener('input', (e) => {
-                    valueSpan.textContent = parseFloat(e.target.value).toFixed(2);
-                });
+                if (input && valueSpan) {
+                    input.addEventListener('input', (e) => {
+                        valueSpan.textContent = parseFloat(e.target.value).toFixed(2);
+                    });
+                }
             });
         }
 
         // This function updates the output UI with the predicted values
         function updateOutputUI(predictions) {
+            console.log('Updating UI with predictions:', predictions);
             for (const kpi in predictions) {
                 const outputElement = document.getElementById(`output-${kpi}`);
                 if (outputElement) {
                     const value = predictions[kpi];
-                    if (value !== 'N/A' && value !== null) {
+                    if (value !== 'N/A' && value !== null && value !== undefined) {
                          outputElement.textContent = parseFloat(value).toFixed(2);
                          outputElement.className = 'text-lg font-bold mt-1 text-green-400';
                     } else {
@@ -217,10 +226,13 @@
             const freeLime = predictions['clinker_free_lime_%'];
             let recommendationText = 'The system is running within optimal parameters. No specific recommendations at this time.';
             
-            if (freeLime !== 'N/A' && freeLime !== null && freeLime > 2.0) {
-                recommendationText = `ATTENTION: Predicted clinker free lime is high (${freeLime.toFixed(2)}%). This indicates poor burning. To correct this, consider slightly increasing the 'fuel_feed_rate_tph' by 0.5 to 1.0 tph. Monitor 'kiln_main_drive_current_amp' for any unusual spikes after adjustment.`;
-            } else if (freeLime !== 'N/A' && freeLime !== null && freeLime < 0.5) {
-                recommendationText = `ATTENTION: Predicted clinker free lime is too low (${freeLime.toFixed(2)}%). This may be due to over-burning. Consider slightly reducing the 'fuel_feed_rate_tph' by 0.5 to 1.0 tph to optimize energy consumption and clinker quality.`;
+            if (freeLime !== 'N/A' && freeLime !== null && freeLime !== undefined) {
+                const freeLimeValue = parseFloat(freeLime);
+                if (freeLimeValue > 2.0) {
+                    recommendationText = `ATTENTION: Predicted clinker free lime is high (${freeLimeValue.toFixed(2)}%). This indicates poor burning. To correct this, consider slightly increasing the 'fuel_feed_rate_tph' by 0.5 to 1.0 tph. Monitor 'kiln_main_drive_current_amp' for any unusual spikes after adjustment.`;
+                } else if (freeLimeValue < 0.5) {
+                    recommendationText = `ATTENTION: Predicted clinker free lime is too low (${freeLimeValue.toFixed(2)}%). This may be due to over-burning. Consider slightly reducing the 'fuel_feed_rate_tph' by 0.5 to 1.0 tph to optimize energy consumption and clinker quality.`;
+                }
             }
 
             return recommendationText;
@@ -231,23 +243,26 @@
             const btn = document.getElementById('get-recommendations-btn');
             const loadingIndicator = document.getElementById('loading-indicator');
             const recommendationOutput = document.getElementById('recommendation-output');
+            const errorMessageElement = document.getElementById('error-message');
             
-            // Show loading state
+            // Show loading state and hide previous messages
             btn.disabled = true;
             btn.innerHTML = 'Predicting...';
             loadingIndicator.style.display = 'block';
             recommendationOutput.style.display = 'none';
+            errorMessageElement.style.display = 'none';
 
-            // Gather all input values
+            // Gather all input values with correct keys
             const data = {};
             inputFeatures.forEach(feature => {
                 const inputElement = document.getElementById(feature.id);
-                data[feature.id.replace(/_pct$/, '_%').replace(/_m3_hr$/, '_m3/hr')] = parseFloat(inputElement.value);
+                if (inputElement) {
+                    // Ensure value is a number and not null
+                    data[feature.id] = parseFloat(inputElement.value);
+                }
             });
-            // For the backend, we need to correct the gybsum feed rate to match the backend variable name
-            if (data['gypsum_feed_rate_tph']) {
-                data['gypsum_feed_rate_tph'] = data['gypsum_feed_rate_tph'];
-            }
+
+            console.log('Sending data to backend:', data);
 
             try {
                 const response = await fetch(BACKEND_ENDPOINT_URL, {
@@ -258,11 +273,15 @@
                     body: JSON.stringify(data)
                 });
 
+                console.log('Response status:', response.status);
+
                 if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
+                    const errorText = await response.text();
+                    throw new Error(`HTTP error! Status: ${response.status}, Details: ${errorText}`);
                 }
                 
                 const predictions = await response.json();
+                console.log('Received predictions:', predictions);
 
                 // Update the UI with the real predictions
                 updateOutputUI(predictions);
@@ -272,12 +291,15 @@
 
                 // Display the recommendation
                 recommendationOutput.style.display = 'block';
-                recommendationOutput.innerHTML = `<p class="text-md text-gray-200">${recommendation}</p>`;
+                const recommendationP = recommendationOutput.querySelector('p');
+                if (recommendationP) {
+                    recommendationP.textContent = recommendation;
+                }
 
             } catch (error) {
                 console.error('Prediction failed:', error);
-                recommendationOutput.style.display = 'block';
-                recommendationOutput.innerHTML = `<p class="text-md text-red-400">Error: Could not get predictions. Please check the backend service. Error: ${error.message}</p>`;
+                errorMessageElement.style.display = 'block';
+                errorMessageElement.textContent = `Error: Could not get predictions. Please check the backend service. Error: ${error.message}`;
 
             } finally {
                 // Reset loading state
@@ -289,10 +311,13 @@
 
         // Initialize the page on window load
         window.onload = () => {
+            console.log('Initializing page...');
             renderInputControls();
-            document.getElementById('get-recommendations-btn').addEventListener('click', getPredictionsAndRecommendations);
+            const btn = document.getElementById('get-recommendations-btn');
+            if (btn) {
+                btn.addEventListener('click', getPredictionsAndRecommendations);
+            }
         };
-
     </script>
 </body>
 </html>
